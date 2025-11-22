@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot name="six_wheel_rover">
+  <group name="arm">
+    <joint name="joint1_link_joint"/>
+    <joint name="joint2_link_joint"/>
+    <joint name="joint3_link_joint"/>
+    <joint name="joint4_link_joint"/>
+    <joint name="joint5_link_joint"/>
+  </group>
+
+  <group_state name="home" group="arm">
+    <joint name="joint1_link_joint" value="0"/>
+    <joint name="joint2_link_joint" value="0"/>
+    <joint name="joint3_link_joint" value="0"/>
+    <joint name="joint4_link_joint" value="0"/>
+    <joint name="joint5_link_joint" value="0"/>
+  </group_state>
+
+  <end_effector name="end_effector" parent_link="joint5_link" group="arm" parent_group="arm"/>
+
+  <disable_collisions link1="arm_base_link" link2="joint1_link" reason="adjacent"/>
+  <disable_collisions link1="joint1_link" link2="joint2_link" reason="adjacent"/>
+  <disable_collisions link1="joint2_link" link2="joint3_link" reason="adjacent"/>
+  <disable_collisions link1="joint3_link" link2="joint4_link" reason="adjacent"/>
+  <disable_collisions link1="joint4_link" link2="joint5_link" reason="adjacent"/>
+  <disable_collisions link1="joint5_link" link2="ee_link" reason="adjacent"/>
+</robot>

@@ -1,0 +1,8 @@
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro $(find rover_description)/urdf/rover.urdf.xacro"/>
+  <param name="robot_description_semantic" textfile="$(find toolbox_rover_moveit)/config/rover_arm.srdf"/>
+  <rosparam file="$(find toolbox_rover_moveit)/config/kinematics.yaml" command="load"/>
+  <rosparam file="$(find toolbox_rover_moveit)/config/joint_limits.yaml" command="load"/>
+  <rosparam file="$(find toolbox_rover_moveit)/config/ompl_planning.yaml" command="load"/>
+  <rosparam file="$(find toolbox_rover_moveit)/config/planning_pipeline.yaml" command="load"/>
+</launch>

@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="six_wheel_rover">
+
+  <xacro:property name="geom" value="${xacro.load_yaml('$(find rover_description)/config/geometry.yaml')}"/>
+  <xacro:property name="pi" value="3.14159265359"/>
+
+  <xacro:property name="base_len" value="${geom['base']['length']}"/>
+  <xacro:property name="base_w"   value="${geom['base']['width']}"/>
+  <xacro:property name="base_h"   value="${geom['base']['height']}"/>
+  <xacro:property name="base_mass" value="${geom['base']['mass']}"/>
+
+  <xacro:property name="wheel_radius" value="${geom['wheels']['radius']}"/>
+  <xacro:property name="wheel_width"  value="${geom['wheels']['width']}"/>
+  <xacro:property name="track_width"  value="${geom['wheels']['track_width']}"/>
+  <xacro:property name="wheelbase"    value="${geom['wheels']['wheelbase']}"/>
+  <xacro:property name="zW"           value="${geom['wheels']['z_offset']}"/>
+  <xacro:property name="Lf" value="${wheelbase/2}"/>
+  <xacro:property name="Lr" value="${wheelbase/2}"/>
+  <xacro:property name="halfT" value="${track_width/2}"/>
+
+  <xacro:property name="arm_x" value="${geom['arm_mount']['x']}"/>
+  <xacro:property name="arm_y" value="${geom['arm_mount']['y']}"/>
+  <xacro:property name="arm_z" value="${geom['arm_mount']['z']}"/>
+  <xacro:property name="l1" value="${geom['arm']['l1']}"/>
+  <xacro:property name="l2" value="${geom['arm']['l2']}"/>
+  <xacro:property name="l3" value="${geom['arm']['l3']}"/>
+  <xacro:property name="l4" value="${geom['arm']['l4']}"/>
+  <xacro:property name="l5" value="${geom['arm']['l5']}"/>
+
+  <xacro:property name="j1_lo" value="${geom['arm_limits']['j1'][0]}"/>
+  <xacro:property name="j1_hi" value="${geom['arm_limits']['j1'][1]}"/>
+  <xacro:property name="j2_lo" value="${geom['arm_limits']['j2'][0]}"/>
+  <xacro:property name="j2_hi" value="${geom['arm_limits']['j2'][1]}"/>
+  <xacro:property name="j3_lo" value="${geom['arm_limits']['j3'][0]}"/>
+  <xacro:property name="j3_hi" value="${geom['arm_limits']['j3'][1]}"/>
+  <xacro:property name="j4_lo" value="${geom['arm_limits']['j4'][0]}"/>
+  <xacro:property name="j4_hi" value="${geom['arm_limits']['j4'][1]}"/>
+  <xacro:property name="j5_lo" value="${geom['arm_limits']['j5'][0]}"/>
+  <xacro:property name="j5_hi" value="${geom['arm_limits']['j5'][1]}"/>
+
+  <material name="black"><color rgba="0.05 0.05 0.05 1"/></material>
+  <material name="gray"><color rgba="0.6 0.6 0.6 1"/></material>
+  <material name="orange"><color rgba="0.9 0.4 0.05 1"/></material>
+
+  <link name="base_link">
+    <inertial>
+      <mass value="${base_mass}"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="2.0" iyy="2.0" izz="2.0" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 ${base_h/2}"/>
+      <geometry><box size="${base_len} ${base_w} ${base_h}"/></geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${base_h/2}"/>
+      <geometry><box size="${base_len} ${base_w} ${base_h}"/></geometry>
+    </collision>
+  </link>
+
+  <xacro:macro name="steer_wheel" params="prefix x y z">
+    <link name="${prefix}_steer_link"/>
+    <joint name="${prefix}_steer_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${prefix}_steer_link"/>
+      <origin xyz="${x} ${y} ${z}"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="15" velocity="2.0"/>
+    </joint>
+
+    <link name="${prefix}_wheel_link">
+      <visual>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+        <material name="black"/>
+      </visual>
+      <collision>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="${prefix}_steer_link"/>
+      <child link="${prefix}_wheel_link"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="30" velocity="20.0"/>
+    </joint>
+
+    <transmission name="${prefix}_wheel_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}_wheel_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}_wheel_motor">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+    <transmission name="${prefix}_steer_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}_steer_joint">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}_steer_motor">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:macro name="fixed_wheel" params="prefix x y z">
+    <link name="${prefix}_wheel_link">
+      <visual>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+        <material name="black"/>
+      </visual>
+      <collision>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${prefix}_wheel_link"/>
+      <origin xyz="${x} ${y} ${z}"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="30" velocity="20.0"/>
+    </joint>
+
+    <transmission name="${prefix}_wheel_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}_wheel_joint">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}_wheel_motor">
+        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:steer_wheel prefix="wheel_fl" x="${+Lf}" y="${+halfT}" z="${zW}"/>
+  <xacro:steer_wheel prefix="wheel_fr" x="${+Lf}" y="${-halfT}" z="${zW}"/>
+  <xacro:fixed_wheel prefix="wheel_ml" x="0.0" y="${+halfT}" z="${zW}"/>
+  <xacro:fixed_wheel prefix="wheel_mr" x="0.0" y="${-halfT}" z="${zW}"/>
+  <xacro:steer_wheel prefix="wheel_rl" x="${-Lr}" y="${+halfT}" z="${zW}"/>
+  <xacro:steer_wheel prefix="wheel_rr" x="${-Lr}" y="${-halfT}" z="${zW}"/>
+
+  <link name="arm_base_link"/>
+  <joint name="arm_base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="arm_base_link"/>
+    <origin xyz="${arm_x} ${arm_y} ${arm_z}"/>
+  </joint>
+
+  <xacro:macro name="arm_link" params="name parent xyz axis lo hi">
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 0.1"/>
+        <geometry><cylinder radius="0.03" length="0.2"/></geometry>
+        <material name="gray"/>
+      </visual>
+    </link>
+    <joint name="${name}_joint" type="revolute">
+      <parent link="${parent}"/>
+      <child link="${name}"/>
+      <origin xyz="${xyz}"/>
+      <axis xyz="${axis}"/>
+      <limit lower="${lo}" upper="${hi}" effort="15" velocity="2.0"/>
+    </joint>
+    <transmission name="${name}_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${name}_joint">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${name}_motor">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:arm_link name="joint1_link" parent="arm_base_link" xyz="0 0 ${l1}" axis="0 0 1" lo="${j1_lo}" hi="${j1_hi}"/>
+  <xacro:arm_link name="joint2_link" parent="joint1_link" xyz="0 0 ${l2}" axis="0 1 0" lo="${j2_lo}" hi="${j2_hi}"/>
+  <xacro:arm_link name="joint3_link" parent="joint2_link" xyz="0 0 ${l3}" axis="0 1 0" lo="${j3_lo}" hi="${j3_hi}"/>
+  <xacro:arm_link name="joint4_link" parent="joint3_link" xyz="0 0 ${l4}" axis="1 0 0" lo="${j4_lo}" hi="${j4_hi}"/>
+  <xacro:arm_link name="joint5_link" parent="joint4_link" xyz="0 0 ${l5}" axis="0 1 0" lo="${j5_lo}" hi="${j5_hi}"/>
+
+  <link name="ee_link">
+    <visual><geometry><sphere radius="0.04"/></geometry><material name="orange"/></visual>
+  </link>
+  <joint name="ee_fixed" type="fixed">
+    <parent link="joint5_link"/>
+    <child link="ee_link"/>
+    <origin xyz="0 0 0.05"/>
+  </joint>
+
+</robot>

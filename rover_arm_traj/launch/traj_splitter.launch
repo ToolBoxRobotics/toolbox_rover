@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="rover_arm_traj" type="traj_splitter" name="traj_splitter" output="screen">
+    <param name="max_vel_deg_s" value="60"/>
+  </node>
+</launch>

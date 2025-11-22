@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.0.2)
+project(rover_arm)
+find_package(catkin REQUIRED)
+catkin_package()
+catkin_install_python(PROGRAMS scripts/arm_homing_node.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

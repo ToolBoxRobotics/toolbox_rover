@@ -1,0 +1,15 @@
+<launch>
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find rover_description)/urdf/rover.urdf.xacro"/>
+  <rosparam file="$(find rover_description)/config/controllers_unified.yaml" command="load"/>
+  <node pkg="rover_hardware" type="rover_hw_node" name="rover_hw_node" output="screen"/>
+  <node pkg="controller_manager" type="spawner" name="spawner"
+        args="joint_state_controller
+              wheel_fl_wheel_controller wheel_fr_wheel_controller
+              wheel_ml_wheel_controller wheel_mr_wheel_controller
+              wheel_rl_wheel_controller wheel_rr_wheel_controller
+              wheel_fl_steer_controller wheel_fr_steer_controller
+              wheel_rl_steer_controller wheel_rr_steer_controller
+              joint1_link_controller joint2_link_controller joint3_link_controller
+              joint4_link_controller joint5_link_controller"/>
+</launch>

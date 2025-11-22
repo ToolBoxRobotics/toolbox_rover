@@ -1,0 +1,10 @@
+wheel_radius: 0.12
+track_width: 0.55
+wheelbase: 0.75
+max_wheel_rpm: 120.0
+max_steer_deg: 35.0
+steer_zero_deg: [90,90,90,90]
+rpm_pid:
+  kp: 0.8
+  ki: 0.1
+  kd: 0.0

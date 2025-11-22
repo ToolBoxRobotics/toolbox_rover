@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rover_bringup</name>
+  <version>0.0.1</version>
+  <description>Launch files for Toolbox Rover.</description>
+  <maintainer email="user@todo.todo">Toolbox Robotics</maintainer>
+  <license>BSD</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>rospy</depend>
+  <depend>rosserial_python</depend>
+  <depend>rover_base</depend>
+</package>

@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop" output="screen"/>
+  <node pkg="rviz" type="rviz" name="rviz" output="screen"/>
+</launch>

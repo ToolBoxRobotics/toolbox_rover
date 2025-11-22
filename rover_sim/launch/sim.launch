@@ -1,0 +1,32 @@
+<launch>
+  <arg name="use_sim_time" default="true"/>
+  <param name="use_sim_time" value="$(arg use_sim_time)"/>
+
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find rover_description)/urdf/rover.urdf.xacro"/>
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rsp"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="gui" value="true"/>
+  </include>
+
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_rover"
+        args="-param robot_description -urdf -model rover"/>
+
+  <rosparam file="$(find rover_description)/config/controllers_unified.yaml" command="load"/>
+
+  <node pkg="controller_manager" type="spawner" name="spawner"
+        args="joint_state_controller
+              wheel_fl_wheel_controller wheel_fr_wheel_controller
+              wheel_ml_wheel_controller wheel_mr_wheel_controller
+              wheel_rl_wheel_controller wheel_rr_wheel_controller
+              wheel_fl_steer_controller wheel_fr_steer_controller
+              wheel_rl_steer_controller wheel_rr_steer_controller
+              joint1_link_controller joint2_link_controller joint3_link_controller
+              joint4_link_controller joint5_link_controller"/>
+
+  <node pkg="rover_base" type="rover_controller" name="rover_controller" output="screen"/>
+  <node pkg="rover_sim" type="sim_bridge.py" name="sim_bridge" output="screen"/>
+</launch>

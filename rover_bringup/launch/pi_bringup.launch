@@ -1,0 +1,16 @@
+<launch>
+  <rosparam file="$(find rover_base)/config/base.yaml" command="load"/>
+  <node pkg="rosserial_python" type="serial_node.py" name="drive_mega" output="screen">
+    <param name="port" value="/dev/ttyACM0"/>
+    <param name="baud" value="57600"/>
+  </node>
+  <node pkg="rosserial_python" type="serial_node.py" name="arm_mega" output="screen">
+    <param name="port" value="/dev/ttyACM1"/>
+    <param name="baud" value="57600"/>
+  </node>
+
+  <node pkg="rover_base" type="rover_controller" name="rover_controller" output="screen"/>
+  <node pkg="rover_base" type="odom_node.py" name="rover_odom" output="screen"/>
+
+  <node pkg="rover_arm" type="arm_homing_node.py" name="arm_homing_safety" output="screen"/>
+</launch>
