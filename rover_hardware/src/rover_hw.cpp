@@ -1,4 +1,3 @@
-
 #include "rover_hardware/rover_hw.h"
 #include <cmath>
 #include <algorithm>
